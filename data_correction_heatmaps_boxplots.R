@@ -1,5 +1,5 @@
-
-
+(mydir <- getwd())
+if (!is.null(mydir)) setwd(mydir)
 ## change rows that only have 0 for all three species and all stages to NAs
 # reorder data that all stages an all species are single columns -> into WIDE format 
 
@@ -7,7 +7,7 @@ library(plotly)
 library(dplyr)
 library(readr)
 library(tidyverse)
-complete_dataset_2000_2020 <- read_csv("Schreibtisch/Seabirds/complete_dataset_2000_2020.csv")
+complete_dataset_2000_2020 <- read_csv("complete_dataset_2000_2020.csv")
 data <- complete_dataset_2000_2020
 
 
@@ -51,39 +51,43 @@ new_data<- new_data %>% arrange(Name_place)
 
 #write.csv(data,"Schreibtisch/Seabirds/outlier_corrected_data_V2.csv", row.names = FALSE)
 
+#Giannina: I think that here the problem was the 2000-2002 data without information for breeders and non breeders.
+#The most parsimonic solution is to exclude them from now of your analysis
+#Instead of check the rows to replace with NAs, I will just filter out the years 2000-2002
+new_data<-new_data%>%filter(Year>2002)#new
 # continue working with data
-## replace 0s in rows with many NAs -> not sure if correct , ask Giannina 
-new_data[209:252,9:17]<- NA
-new_data[468:504,9:17]<- NA
-new_data[699:756,9:17]<- NA
-new_data[968:1008,9:17]<- NA
-new_data[1225:1260,9:17]<- NA
-new_data[1477:1512,9:17]<- NA
-new_data[1727:1764,9:17]<- NA
-new_data[1965:2016,9:17]<- NA
-new_data[2226:2268,9:17]<- NA
-new_data[2476:2520,9:17]<- NA
-new_data[2725:2772,9:17]<- NA
-new_data[2981:3024,9:17]<- NA
-new_data[3236:3276,9:17]<- NA
-new_data[3487:3528,9:17]<- NA
-new_data[3732:3780,9:17]<- NA
-new_data[3985:4032,9:17]<- NA
-new_data[4250:4260,9:17]<- NA
-new_data[4494:4536,9:17]<- NA
-new_data[4560:4571,9:17]<- NA
-new_data[4719:4788,9:17]<- NA
-new_data[5001:5040,9:17]<- NA
-new_data[5239:5292,9:17]<- NA
-new_data[5738:5796,9:17]<- NA
-new_data[6000:6048,9:17]<- NA
-new_data[6241:6300,9:17]<- NA
-new_data[6508:6552,9:17]<- NA
-new_data[6700:6804,9:17]<- NA
-new_data[7006:7056,9:17]<- NA
-new_data[7229:7308,9:17]<- NA
-new_data[7515:7560,9:17]<- NA
-
+# ## replace 0s in rows with many NAs -> not sure if correct , ask Giannina 
+# new_data[209:252,9:17]<- NA
+# new_data[468:504,9:17]<- NA
+# new_data[699:756,9:17]<- NA
+# new_data[968:1008,9:17]<- NA
+# new_data[1225:1260,9:17]<- NA
+# new_data[1477:1512,9:17]<- NA
+# new_data[1727:1764,9:17]<- NA
+# new_data[1965:2016,9:17]<- NA
+# new_data[2226:2268,9:17]<- NA
+# new_data[2476:2520,9:17]<- NA
+# new_data[2725:2772,9:17]<- NA
+# new_data[2981:3024,9:17]<- NA
+# new_data[3236:3276,9:17]<- NA
+# new_data[3487:3528,9:17]<- NA
+# new_data[3732:3780,9:17]<- NA
+# new_data[3985:4032,9:17]<- NA
+# new_data[4250:4260,9:17]<- NA
+# new_data[4494:4536,9:17]<- NA
+# new_data[4560:4571,9:17]<- NA
+# new_data[4719:4788,9:17]<- NA
+# new_data[5001:5040,9:17]<- NA
+# new_data[5239:5292,9:17]<- NA
+# new_data[5738:5796,9:17]<- NA
+# new_data[6000:6048,9:17]<- NA
+# new_data[6241:6300,9:17]<- NA
+# new_data[6508:6552,9:17]<- NA
+# new_data[6700:6804,9:17]<- NA
+# new_data[7006:7056,9:17]<- NA
+# new_data[7229:7308,9:17]<- NA
+# new_data[7515:7560,9:17]<- NA
+# 
 
 ## remove the ouliers from the boxplots
 
@@ -93,7 +97,6 @@ data<- new_data %>% gather(Stage, Abundance, c(9:11, 12:14, 15:17))
 
 # separate the TYPE column into the columns Species and Type
 data<- separate(data, Stage, sep = "_", into = c("Species", "Stage"))
-
 
 
 
@@ -157,11 +160,8 @@ fig
 ###########################################################
 ##################### check for outliers:######################
 ##############################################################
-
-
-str(data)
+#Here I would rather try to do more automatic the code first asking for the max for every island
 data<- as.data.frame(data)
-
 ########### Cormorant 
 
 # I. Pescadores
@@ -169,7 +169,7 @@ data %>% filter(Name_place == "I. Pescadores", Species =="Cormorant", Stage=="br
 pesc<- data %>% filter(Name_place == "I. Pescadores", Species =="Cormorant", Stage=="breeder") # look at other months
 
 data[which(c(data$Name_place=="I. Pescadores" & data$Species =="Cormorant"& data$Stage=="breeder"& data$Abundance>= 600000)),] # index is 12399
-data[12399,11]<- 60000 # replace the 600.000 with 60.000
+data[10365,11]<- 60000 # replace the 600.000 with 60.000
 
 # I, Macabi
 data %>% filter(Name_place == "I. Macabí", Species =="Cormorant", Stage=="breeder", Abundance >= 870000) ## 09/2003 and 11/2005
@@ -219,10 +219,10 @@ data %>% filter(Name_place == "I. Chincha Sur", Species =="Booby", Stage=="breed
 pesc<- data %>% filter(Name_place == "I. Chincha Sur", Species =="Booby", Stage=="breeder") 
 
 data[which(c(data$Name_place=="I. Chincha Sur" & data$Species =="Booby"& data$Stage=="breeder"& data$Abundance>= 462000)),] ## unsicher -> would not nessecarily consider outliers
+#There is no value higher than 400000 in Chincha Sur
 
 
-
-# "I. Chincha   ## unischer 
+# "I. Chincha   ## unischer ###Answer: That is not an outlier
 
 data %>% filter(Name_place == "I. Chincha Norte", Species =="Booby", Stage=="breeder", Abundance >= 427000) ## 10/2014
 pesc<- data %>% filter(Name_place == "I. Chincha Norte", Species =="Booby", Stage=="breeder") 
@@ -234,7 +234,7 @@ data[which(c(data$Name_place=="I. Chincha Norte" & data$Species =="Booby"& data$
 ## Pelican
 ####################################
 
-# P. San Juan
+# P. San Juan, ###Answer: Not an outlier
 
 data %>% filter(Name_place == "P. San Juan", Species =="Pelican", Stage=="breeder", Abundance >= 29000) ## 01/2011
 pesc<- data %>% filter(Name_place == "P. San Juan", Species =="Pelican", Stage=="breeder") 
@@ -242,7 +242,7 @@ data[which(c(data$Name_place=="P. San Juan" & data$Species =="Pelican"& data$Sta
 data[60315,11]<- 2970 
 
 
-# I. Santa  -> clear outlier, but no indication for mistakes
+# I. Santa  -> clear outlier, but no indication for mistakes,# it is maybe a 7 more if we compare with the previous month, I will write 9785
 
 data %>% filter(Name_place == "I. Santa", Species =="Pelican", Stage=="breeder", Abundance >= 97875) ## 10/2010
 pesc<- data %>% filter(Name_place == "I. Santa", Species =="Pelican", Stage=="breeder") 
@@ -260,7 +260,7 @@ data[56955,11]<- 15000
 data[56963,11]<- 15000
 data[56974,11]<- 7500 
 
-# I. Lobos de Afuera
+# I. Lobos de Afuera ###Answer: Yes, I agree
 
 data %>% filter(Name_place == "I. Lobos de Afuera", Species =="Pelican", Stage=="breeder", Abundance >= 75000)  # 10 & 11 2011, 01/2012
 pesc<- data %>% filter(Name_place == "I. Lobos de Afuera", Species =="Pelican", Stage=="breeder") # look at other months -> remove a 0 from the abundance number
@@ -349,7 +349,7 @@ fig
 
 ## Cormorant
 
-# P. Coles
+# P. Coles #Answer: Yes, I agree
 
 data %>% filter(Name_place == "P. Coles", Species =="Cormorant", Stage=="nonbreeder", Abundance >= 480000)  # 07/2015
 pesc<- data %>% filter(Name_place == "P. Coles", Species =="Cormorant", Stage=="nonbreeder") #looks like a 0 too much
@@ -370,14 +370,14 @@ data[25280,11]<- 593204
 
 ## Pelican
 
-# I. Chao
+# I. Chao #Answer Yes, I agree
 data %>% filter(Name_place == "I. Chao", Species =="Pelican", Stage=="nonbreeder", Abundance >= 371000) ## 07/2010
 pesc<- data %>% filter(Name_place == "I. Chao", Species =="Pelican", Stage=="nonbreeder") # looks like a 0 too much
 data[which(c(data$Name_place=="I. Chao" & data$Species =="Pelican"& data$Stage=="nonbreeder"& data$Abundance>= 371000)),] 
 data[46205,11]<- 37117 
 
 
-# Guanape Norte # not sure
+# Guanape Norte # not sure, Answer: Yes, it seems a 5 more than required
 
 data %>% filter(Name_place == "I. Guañape Norte", Species =="Pelican", Stage=="nonbreeder", Abundance >= 235500) ## 02/2012
 pesc<- data %>% filter(Name_place == "I. Guañape Norte", Species =="Pelican", Stage=="nonbreeder") # maybe one 5 too much, could be duplicated
@@ -385,7 +385,7 @@ data[which(c(data$Name_place=="I. Guañape Norte" & data$Species =="Pelican"& da
 data[47981,11]<- 23525 
 
 
-# I. Lobos de Tierra
+# I. Lobos de Tierra #Answer: Yes, it seems a 2 more than required
 
 data %>% filter(Name_place == "I. Lobos de Tierra", Species =="Pelican", Stage=="nonbreeder", Abundance >= 160000) ## 10/2006 & 04/2012
 pesc<- data %>% filter(Name_place == "I. Lobos de Tierra", Species =="Pelican", Stage=="nonbreeder") # the 0s could be too much
@@ -394,14 +394,14 @@ data[49176,11]<- 16000
 data[49243,11]<- 22935 
 
 
-# P. Lomitas
+# P. Lomitas #Answer: Yes
 data %>% filter(Name_place == "P. Lomitas", Species =="Pelican", Stage=="nonbreeder", Abundance >= 50000) ## 03/2020
 pesc<- data %>% filter(Name_place == "P. Lomitas", Species =="Pelican", Stage=="nonbreeder") # the 0 could be too much
 data[which(c(data$Name_place=="P. Lomitas" & data$Species =="Pelican"& data$Stage=="nonbreeder"& data$Abundance>= 50000)),] 
 data[52356,11]<- 5425 
 
 
-# P. Coles
+# P. Coles #Answer: Yes
 
 data %>% filter(Name_place == "P. Coles", Species =="Pelican", Stage=="nonbreeder", Abundance >= 80000) ## 06 & 07 2007, 05&06 2011
 pesc<- data %>% filter(Name_place == "P. Coles", Species =="Pelican", Stage=="nonbreeder") # the 0s could be too much
@@ -412,7 +412,7 @@ data[51245,11]<- 8805
 data[51247,11]<- 12875
 data[51248,11]<- 8000 
 
-# P. San Juan # not sure
+# P. San Juan # not sure, Answer: Yes, it seems a duplicate 5, so it will be 2500
 
 data %>% filter(Name_place == "P. San Juan", Species =="Pelican", Stage=="nonbreeder", Abundance >= 25500) ##
 pesc<- data %>% filter(Name_place == "P. San Juan", Species =="Pelican", Stage=="nonbreeder") # the 5 could be duplicated
@@ -421,7 +421,7 @@ data[52762,11]<- 25596 ## also still an outlier after correction
 
 
 
-# I. Macabi 
+# I. Macabi , #Answer: Here is difficult to say it could be also a 1 more, I will take 12000 as we were always take the maximum possible
 
 data %>% filter(Name_place == "I. Macabí", Species =="Pelican", Stage=="nonbreeder", Abundance >= 112000) ## 09/2003
 pesc<- data %>% filter(Name_place == "I. Macabí", Species =="Pelican", Stage=="nonbreeder") # the 0 could be too much
@@ -429,7 +429,7 @@ data[which(c(data$Name_place=="I. Macabí" & data$Species =="Pelican"& data$Stag
 data[49402,11]<- 11200
 
 
-# I. Lobos de Afuera
+# I. Lobos de Afuera #Answer: Yes
 
 data %>% filter(Name_place == "I. Lobos de Afuera", Species =="Pelican", Stage=="nonbreeder", Abundance >= 120000) ## 09/2010 & 02/2012 
 pesc<- data %>% filter(Name_place == "I. Lobos de Afuera", Species =="Pelican", Stage=="nonbreeder") # the 0s could be too much
@@ -438,7 +438,7 @@ data[48972,11]<- 12000
 data[48988,11]<- 12600 
 
 
-# I. Asia
+# I. Asia #Answer:yes
 
 data %>% filter(Name_place == "I. Asia", Species =="Pelican", Stage=="nonbreeder", Abundance >= 30000) ## 10/2010 & 01/2012 
 pesc<- data %>% filter(Name_place == "I. Asia", Species =="Pelican", Stage=="nonbreeder") # the 0s could be too much
@@ -447,14 +447,14 @@ data[45438,11]<- 3024
 data[45461,11]<- 6000 
 
 
-# I. Don Martin
+# I. Don Martin #Yes, 30000 is possible
 
 data %>% filter(Name_place == "I. Don Martín", Species =="Pelican", Stage=="nonbreeder", Abundance >= 30000) ## 12/2010 & 11/2015
 pesc<- data %>% filter(Name_place == "I. Don Martín", Species =="Pelican", Stage=="nonbreeder") # the 0s could be too much, 11/2015 is fine
 data[which(c(data$Name_place=="I. Don Martín" & data$Species =="Pelican"& data$Stage=="nonbreeder"& data$Abundance>= 30000)),] 
 data[47457,11]<- 7503 
 
-# I. Huampano  # unischer
+# I. Huampano  # unischer #Answer: it is an outlier, it should be 5478
 
 data %>% filter(Name_place == "I. Huampanú", Species =="Pelican", Stage=="nonbreeder", Abundance >= 50000) ## 06/2010 
 pesc<- data %>% filter(Name_place == "I. Huampanú", Species =="Pelican", Stage=="nonbreeder") # clearly an outlier but not sure how to correct it
@@ -489,14 +489,15 @@ library(readr)
 library(ggplot2)
 library(plotly)
 library(tidyverse)
-library(hrbrthemes)  # DOES NOT WORK ON MY R-VERISON
+#library(hrbrthemes)  # DOES NOT WORK ON MY R-VERISON
 library(viridis)
-library(d3heatmap) # DOES NOT WORK ON MY R-VERSION
+#library(d3heatmap) # DOES NOT WORK ON MY R-VERSION
 library(dplyr)
 library(gplots)
+library(heatmaply)
 
 # LOAD THE DATA
-outlier_corrected_data <- read_csv("Schreibtisch/Seabirds/outlier_corrected_data.csv")
+outlier_corrected_data <- read_csv("outlier_corrected_data.csv")
 data<- outlier_corrected_data
 
 data<- data %>% arrange(Name_place, Year, Month)
@@ -568,22 +569,24 @@ BN<- as.matrix(BN)
 PB<- as.matrix(PB)
 PN<- as.matrix(PN)
 
-
-p1 <- heatmaply(CB, 
-               dendrogram = "none",
+#Before applying the heat map you should check that series are normally distributed,
+#if not it should be normalized, here I used a log 2 but you should check another transformation
+#common transform are sqrt, log10, root. Present the data as percentile also works percentize()
+#take this example for the next plots
+p1 <- heatmaply(log10(CB[,37:ncol(CB)]+1), 
+                dendrogram = "row",#based on the row means
                xlab = "", ylab = "", 
-               na.value =  "black",             # confused why nas are not black
                main = "Cormorant Breeder",
                scale = "none",
                # margins = c(60,100,40,20),
-               grid_color = "white",
+               #grid_color = "white",#or NA
                grid_width = 0.00001,
                titleX = FALSE,
                hide_colorbar = F,
                branches_lwd = 0.1,
                label_names = c("Island", "Date:", "Abundance"),
-               fontsize_row = 5, fontsize_col = 5,
-               labCol = colnames(CB),
+               fontsize_row = 10, fontsize_col = 5,
+               labCol = colnames(NA),
                labRow = rownames(CB),
                heatmap_layers = theme(axis.line=element_blank())
 )
@@ -592,8 +595,8 @@ p1
 
 
 
-p2 <- heatmaply(CN, 
-                dendrogram = "none",
+p2 <- heatmaply(log2(CN[,37:ncol(CN)]+1), 
+                dendrogram = "row",
                 xlab = "", ylab = "", 
                 na.value =  "black",             # confused why nas are not black
                 main = "Cormorant Nonbreeder",
