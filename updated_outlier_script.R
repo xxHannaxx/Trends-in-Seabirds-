@@ -1,4 +1,5 @@
-
+(mydir <- getwd())
+if (!is.null(mydir)) setwd(mydir)
 ## change rows that only have 0 for all three species and all stages to NAs
 # reorder data that all stages an all species are single columns -> into WIDE format 
 
@@ -557,11 +558,10 @@ library(gplots)
 library(heatmaply)
 
 # LOAD THE DATA
-outlier_corrected_data <- read_csv("Schreibtisch/Seabirds/outlier_corrected_data_w_total.csv")
+outlier_corrected_data <- read.csv("Schreibtisch/Seabirds/outlier_corrected_data_w_total.csv")
 data<- outlier_corrected_data
-
 data<- data %>% arrange(Name_place, Year, Month)
-
+data$Name_place<-iconv(data$Name_place, "latin1", "ASCII", sub="")#Multibyte string can cause problems better to remove it
 
 # CREATE DATE COLUMN
 data$Date <- paste(data$Month, data$Year)
@@ -626,8 +626,9 @@ PN<- PN[,-1]
 #f <- function(x) {
 #  if (diff(range(x)) == 0) list() else shapiro.test(x)
 #}
-
 apply(CB,1,shapiro.test)# ERROR, but not normally distributed
+apply(CB%>%filter_all(any_vars(. != 0)),1,shapiro.test)#You can use this line to correct error
+
 apply(CN,1,shapiro.test) # not normally distributed
 apply(BB,1,shapiro.test) # ERROR, but not normally distributed
 apply(BN,1,shapiro.test) # not normally distributed
